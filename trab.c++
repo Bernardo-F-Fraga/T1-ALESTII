@@ -2,55 +2,140 @@
  Primeira linha: total de vendas/compras
  Demais linhas:
 
- <tipo> <quant> <preço>
+ <tipo> <quant> <preco>
   char     int     int
 
-Da para usar 
-Max-heap -> venda
+Max-heap -> Compra
+Min-heap -> Venda
 
+lê uma ordem
+│
+├── é Compra?
+│     └── tem venda no topo com preço ≤ compra?
+│           ├── sim → casa, registra lucro
+│           └── não → empurra no heap de compras
+│
+└── é Venda?
+      └── tem compra no topo com preço ≥ venda?
+            ├── sim → casa, registra lucro
+            └── não → empurra no heap de vendas
 
 */
-
 
 #include <iostream>
 #include <fstream>
 #include <queue>
+#include <vector>
 
 using namespace std;
 
-//Min-heap
-void Venda();
-
-//Max-heap
-void Compra();
-
-struct Ordem
-{   
+struct Ordem {
     char tipo;
     int quant;
-    int preço;
+    int preco;
 };
 
-//Fila de entrada das ordens
-queue <Ordem> entrada;
+// priority_queue exige um tipo como comparador, não uma função, por isso struct com operator() é a forma mais simples
+struct CompararCompra {
+    bool operator()(Ordem a, Ordem b) {
+        return a.preco < b.preco; // maior preço no topo
+    }
+};
 
-// Heap de compr: max-heap -> quem paga mais fica no topo
-priority_queue <Ordem> Compra;
+struct CompararVenda {
+    bool operator()(Ordem a, Ordem b) {
+        return a.preco > b.preco; // menor preço no topo
+    }
+};
 
-// Heap de vendas: min-heap → quem aceita menos fica no topo
-priority_queue<Ordem> Venda;
+class OrderBook {
+    //              tipo    container      comparador
+    priority_queue<Ordem, vector<Ordem>, CompararCompra> compras;
+    priority_queue<Ordem, vector<Ordem>, CompararVenda>  vendas;
+    int lucro = 0;
+    int negociadas = 0;
 
-int main(void)
-{
+public:
+    void inserir(Ordem o);
+    void imprimir();
+};
+
+void OrderBook::inserir(Ordem o) {
+    // Se uma Compra foi inserida
+    if (o.tipo == 'C') 
+    {
+        // Enquanto
+        // 1. Houver vendas
+        // 2. A venda mais alta for menor ou igual ao preço da compra
+        // 3. A compra ainda tiver quantidade a negociar
+        while (vendas.empty() == false && vendas.top().preco <= o.preco && o.quant > 0) 
+        {
+            // Pega a venda mais barata do heap
+            Ordem venda = vendas.top();
+            vendas.pop();
+
+            // Negocia a menor quantidade entre compra e venda
+            int negociado;
+
+            // Se a quantidade que a compra atual quer é menor que a quantidade disponível na venda, negocia o que a compra quer.
+            // Se não, negocia o que a venda tem disponível.
+            if (o.quant < venda.quant) {
+                negociado = o.quant;
+            } else {
+                negociado = venda.quant;
+            }
+
+            // Registra lucro da fintech -> diferença entre preço de compra e venda multiplicada pela quantidade negociada
+            lucro      += (o.preco - venda.preco) * negociado;
+
+            // Registra quantidade negociada
+            negociadas += negociado;
+
+            // Desconta a quantidade negociada de cada lado
+            o.quant     -= negociado;
+            venda.quant -= negociado;
+
+            // Se sobrou quantidade na venda, devolve ao heap
+            if (venda.quant > 0) {
+                vendas.push(venda);
+            }
+        }
+
+        // Se sobrou quantidade na compra, guarda no heap
+        if (o.quant > 0) 
+        {
+            compras.push(o);
+        }
+    }
+
+
+    } 
+    // Se uma Venda foi inserida
+    else {
+        // lógica de venda
+    }
+}
+
+void OrderBook::imprimir() {
+    cout << "Lucro: " << lucro << endl;
+    cout << "Acoes negociadas: " << negociadas << endl;
+    cout << "Compras pendentes: " << compras.size() << endl;
+    cout << "Vendas pendentes: " << vendas.size() << endl;
+}
+
+int main() {
     ifstream lista("lista.txt");
 
-    //Pegar primeira linha (num total)
     int total = 0;
     lista >> total;
 
-    // 
-    
+    OrderBook book;
 
+    for (int i = 0; i < total; i++) {
+        Ordem o;
+        lista >> o.tipo >> o.quant >> o.preco;
+        book.inserir(o);
+    }
 
-
+    book.imprimir();
 }
