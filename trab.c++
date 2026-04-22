@@ -60,7 +60,8 @@ public:
     void imprimir();
 };
 
-void OrderBook::inserir(Ordem o) {
+void OrderBook::inserir(Ordem o) 
+{
     // Se uma Compra foi inserida
     if (o.tipo == 'C') 
     {
@@ -102,17 +103,55 @@ void OrderBook::inserir(Ordem o) {
         }
 
         // Se sobrou quantidade na compra, guarda no heap
-        if (o.quant > 0) 
+        if (o.quant > 0)
         {
             compras.push(o);
         }
     }
-
-
-    } 
     // Se uma Venda foi inserida
     else {
-        // lógica de venda
+        // Enquanto
+        // 1. Houver compras
+        // 2. A compra mais alta for maior ou igual ao preço da venda
+        // 3. A venda ainda tiver quantidade a negociar
+        while (compras.empty() == false && compras.top().preco >= o.preco && o.quant > 0)
+        {
+            // Pega a compra mais cara do heap
+            Ordem compra = compras.top();
+            compras.pop();
+
+            // Negocia a menor quantidade entre compra e venda
+            int negociado;
+
+            // Se a quantidade que a venda atual quer é menor que a quantidade disponível na compra, negocia o que a venda quer.
+            // Se não, negocia o que a compra tem disponível.
+            if (o.quant < compra.quant) {
+                negociado = o.quant;
+            } else {
+                negociado = compra.quant;
+            }
+
+            // Registra lucro da fintech -> diferença entre preço de compra e venda multiplicada pela quantidade negociada
+            lucro       += (compra.preco - o.preco) * negociado;
+
+            // Registra quantidade negociada
+            negociadas   += negociado;
+
+            // Desconta a quantidade negociada de cada lado
+            o.quant      -= negociado;
+            compra.quant -= negociado;
+
+            // Se sobrou quantidade na compra, devolve ao heap
+            if (compra.quant > 0) {
+                compras.push(compra);
+            }
+        }
+
+        // Se sobrou quantidade na venda, guarda no heap
+        if (o.quant > 0)
+        {
+            vendas.push(o);
+        }
     }
 }
 
