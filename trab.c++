@@ -163,7 +163,8 @@ void OrderBook::imprimir() {
 }
 
 int main() {
-    ifstream lista("lista.txt");
+    //ifstream lista("testes/lista.txt");
+    ifstream lista("testes/t5.txt");
 
     int total = 0;
     lista >> total;
