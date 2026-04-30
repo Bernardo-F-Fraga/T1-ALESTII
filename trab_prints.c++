@@ -226,12 +226,12 @@ void OrderBook::inserir(Ordem o)
 
 void OrderBook::imprimir() {
     cout << "\n╔════════════════════════════════════════╗" << endl;
-    cout << "║     RESUMO FINAL DO PROCESSAMENTO     ║" << endl;
+    cout << "║     RESUMO FINAL DO PROCESSAMENTO      ║" << endl;
     cout << "╚════════════════════════════════════════╝" << endl;
     cout << "Lucro: R$" << lucro << endl;
     cout << "Acoes negociadas: " << negociadas << endl;
-    cout << "Compras pendentes: " << compras.size() << endl;
-    cout << "Vendas pendentes: " << vendas.size() << endl;
+    cout << "Ordem de Compras pendentes: " << compras.size() << endl;
+    cout << "Ordem de Vendas pendentes: " << vendas.size() << endl;
 }
 
 void OrderBook::exibirHeapCompras() {
@@ -272,7 +272,7 @@ void OrderBook::exibirHeapVendas() {
 
 void OrderBook::exibirHeaps() {
     cout << "\n╔════════════════════════════════════════╗" << endl;
-    cout << "║         ESTADO DOS HEAPS/FILAS        ║" << endl;
+    cout << "║         ESTADO DOS HEAPS/FILAS         ║" << endl;
     cout << "╚════════════════════════════════════════╝" << endl;
 
     cout << "\n[COMPRAS PENDENTES - Max-Heap (maior preço no topo)]" << endl;
@@ -283,7 +283,7 @@ void OrderBook::exibirHeaps() {
 }
 
 int main() {
-    ifstream lista("lista.txt");
+    ifstream lista("testes/t3.txt");
 
     int total = 0;
     lista >> total;
